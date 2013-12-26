@@ -1,26 +1,35 @@
 package pl.stachjankowski.jaspersqlextractor
 
-import net.sf.jasperreports.engine.util.JRLoader
-import net.sf.jasperreports.engine.{JasperReport, JRException}
+import net.sf.jasperreports.engine.JasperReport
+import java.io._
 
 object Main {
   def main(args: Array[String]): Unit = {
     if ( args.size == 0 ) usage()
 
     val sourcePath = args{0}
-    var report : JasperReport = null
     try {
-      report = JRLoader.loadObjectFromFile(sourcePath).asInstanceOf[JasperReport]
+      println(getQuery(getJasperReport(sourcePath)))
     } catch {
-      case e: JRException =>
-        println("File " + sourcePath + " is not valid jasper!")
+      case e: java.io.FileNotFoundException =>
+        println("Error: File " + sourcePath + " not found")
         sys.exit(1)
+      case e: java.lang.NullPointerException =>
+        println("Error: No sql in " + sourcePath)
+        sys.exit(2)
     }
-
-    val query = report.getQuery()
-    if (query != null) println(query.getText())
-    sys.exit(0)
   }
+
+  def getJasperReport(sourcePath: String): JasperReport = {
+    val fileIn = new FileInputStream(sourcePath)
+    val in = new ObjectInputStream(fileIn)
+    val report = in.readObject().asInstanceOf[JasperReport]
+    in.close()
+    fileIn.close()
+    report
+  }
+
+  def getQuery(report: JasperReport) = report.getQuery().getText()
 
   def usage(): Unit = {
     println("usage:")
