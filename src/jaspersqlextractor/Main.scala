@@ -1,4 +1,4 @@
-package jaspersqlextractor
+package pl.stachjankowski.jaspersqlextractor
 
 import net.sf.jasperreports.engine.util.JRLoader
 import net.sf.jasperreports.engine.{JasperReport, JRException}
